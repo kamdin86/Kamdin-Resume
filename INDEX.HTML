@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kamdin Tamjid — Interactive Resume</title>
+  <meta name="description" content="Interactive résumé for Kamdin Tamjid — Mechanical Engineering student at Huston-Tillotson University." />
+  <link rel="preconnect" href="." />
+  <style>
+    :root{
+      --bg:#0b132b;          /* deep blue background for header / accents */
+      --bg-2:#1c2541;        /* secondary navy */
+      --accent:#00b894;      /* green accent */
+      --accent-2:#2ecc71;    /* secondary green */
+      --ink:#0e1220;
+      --text:#1d2433;
+      --muted:#6c7a92;
+      --surface:#ffffff;
+      --surface-2:#f5f7fb;
+      --ring:rgba(0,184,148,.35);
+      --shadow: 0 6px 20px rgba(12,28,74,.18);
+      --radius:18px;
+    }
+    /* dark mode */
+    .dark{
+      --surface:#0d1117;
+      --surface-2:#0f1520;
+      --text:#e6edf3;
+      --muted:#9fb1ca;
+      --bg:#0a0f1f;
+      --bg-2:#0c1324;
+      --shadow: 0 8px 26px rgba(3,11,33,.6);
+      --ring:rgba(0,184,148,.45);
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0}
+    body{
+      font: 15px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:linear-gradient(180deg,var(--surface-2),#fff 20%,var(--surface));
+    }
+
+    /* Header */
+    header.hero{
+      background:
+        radial-gradient(1000px 400px at 80% -50%, rgba(0,184,148,.35), transparent 60%),
+        linear-gradient(180deg,var(--bg),var(--bg-2));
+      color:#eaf7ff;
+      padding:44px 20px 28px;
+      position:relative;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+    .container{max-width:1050px;margin:0 auto;padding:0 14px}
+    .hero .topbar{
+      display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    }
+    .chip{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.15);
+      color:#daf8ef;
+      padding:8px 12px; border-radius:999px; font-weight:600; letter-spacing:.2px;
+    }
+    .controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .btn{
+      appearance:none; border:0; cursor:pointer;
+      padding:9px 14px; border-radius:10px; font-weight:600;
+      background:#ffffff10; color:#eaf7ff; backdrop-filter: blur(6px);
+      transition: transform .08s ease, background .2s;
+      border:1px solid rgba(255,255,255,.2);
+    }
+    .btn:hover{transform:translateY(-1px); background:#ffffff18}
+    .btn.accent{background:var(--accent); color:#05251f; border:0}
+    .btn.accent:hover{filter:brightness(1.05)}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.35)}
+    .title{
+      display:grid; grid-template-columns:1fr auto; gap:10px; align-items:end; margin-top:16px;
+    }
+    h1{margin:0; font-size:clamp(26px,4.2vw,40px); letter-spacing:.3px}
+    .subtitle{margin:6px 0 0; color:#c9d7f3}
+    .contact{
+      display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;
+    }
+    .pill{
+      color:#0f2e27; background:#c7f7ec; border:1px solid #89e8d4; padding:6px 10px; border-radius:999px; font-weight:600
+    }
+    .nav{
+      margin-top:18px; display:flex; gap:8px; flex-wrap:wrap
+    }
+    .tab{
+      background:var(--surface); color:var(--ink); border:1px solid #e6ecf6;
+      padding:9px 14px; border-radius:10px; cursor:pointer; font-weight:700;
+      box-shadow:var(--shadow)
+    }
+    .tab[aria-selected="true"]{outline:2px solid var(--accent); background:linear-gradient(0deg,#fff,#f6fffb)}
+    .searchbar{
+      margin-top:12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap
+    }
+    .searchbar input{
+      flex:1 1 260px; padding:12px 14px; border-radius:12px; border:1px solid #d6e1f2; background:#fff;
+      box-shadow: inset 0 0 0 2px transparent; outline:none; font-size:15px
+    }
+    .searchbar input:focus{box-shadow: inset 0 0 0 2px var(--ring); border-color:#bfeee5}
+    .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#e8fbf5;color:#0f2e27;border:1px solid #b3f1e2;font-weight:700}
+
+    /* Layout */
+    main{padding:22px 0 60px}
+    .grid{
+      display:grid; grid-template-columns: 1.2fr .8fr; gap:22px;
+    }
+    @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
+
+    /* Cards */
+    .card{
+      background:var(--surface);
+      border:1px solid #e7ecf5;
+      border-radius:var(--radius);
+      padding:18px 18px 6px;
+      box-shadow:var(--shadow);
+    }
+    .card h2{
+      margin:0 0 10px; font-size:20px;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .section-actions{display:flex; gap:8px}
+    details{border-radius:12px; border:1px solid #e9eef7; margin:10px 0; background:linear-gradient(0deg,#fff,#fbfefe)}
+    summary{
+      cursor:pointer; list-style:none; padding:12px 14px; font-weight:700; color:#0a3a30;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    summary::marker{display:none}
+    .content{padding:4px 16px 14px; color:var(--text)}
+    .item{padding:12px 0; border-top:1px dashed #e1e7f4}
+    .item:first-child{border-top:0}
+    .item h3{margin:0 0 6px; font-size:16px}
+    .meta{color:var(--muted); font-weight:600}
+    ul{margin:8px 0 0 18px}
+    li{margin:6px 0}
+
+    /* Skills / Bars */
+    .tags{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+    .tag{padding:7px 10px; background:#f0fff9; color:#0f2e27; border:1px solid #b1f0e0; border-radius:999px; font-weight:700}
+    .bar{height:10px; background:#eaf2ff; border-radius:999px; overflow:hidden; border:1px solid #d6e1f2}
+    .bar > span{display:block; height:100%; background:linear-gradient(90deg,var(--accent),var(--accent-2));}
+
+    /* Footer */
+    footer{color:var(--muted); text-align:center; padding:26px 0}
+
+    /* Print */
+    @media print{
+      .controls,.nav,.searchbar,.section-actions{display:none !important}
+      header.hero{padding:24px 0 14px; box-shadow:none}
+      body{background:#fff}
+      .card{box-shadow:none}
+      a[href]:after{content:" (" attr(href) ")"; font-weight:400}
+    }
+  </style>
+
+  <!-- Structured data for better SEO -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Person",
+    "name":"Kamdin Tamjid",
+    "email":"mailto:kamdintamjid86@gmail.com",
+    "telephone":"+1-737-393-1247",
+    "address":{
+      "@type":"PostalAddress",
+      "streetAddress":"2107 Greenwood Ave Unit B",
+      "addressLocality":"Austin",
+      "addressRegion":"TX",
+      "postalCode":"78723",
+      "addressCountry":"US"
+    },
+    "alumniOf":"Huston-Tillotson University",
+    "hasOccupation":{
+      "@type":"Occupation",
+      "name":"Mechanical Engineering Student"
+    }
+  }
+  </script>
+</head>
+
+<body>
+<header class="hero" role="banner">
+  <div class="container">
+    <div class="topbar">
+      <span class="chip">Interactive Résumé</span>
+      <div class="controls">
+        <button class="btn ghost" id="toggleTheme" aria-pressed="false" title="Toggle light/dark">Toggle Theme</button>
+        <button class="btn ghost" id="expandAll" title="Expand all sections">Expand All</button>
+        <button class="btn ghost" id="collapseAll" title="Collapse all sections">Collapse All</button>
+        <button class="btn accent" onclick="window.print()" title="Print or save as PDF">Print / Save PDF</button>
+      </div>
+    </div>
+
+    <div class="title">
+      <div>
+        <h1>Kamdin Tamjid</h1>
+        <p class="subtitle">Mechanical Engineering — Huston-Tillotson University (Class of 2029)</p>
+        <div class="contact" aria-label="Contact">
+          <button class="pill" data-copy="+17373931247">📞 +1 (737) 393-1247</button>
+          <button class="pill" data-copy="kamdintamjid86@gmail.com">✉️ kamdintamjid86@gmail.com</button>
+          <span class="badge">Austin, TX</span>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Section Tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-target="resume">Resume</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="projects">Projects</button>
+    </nav>
+
+    <div class="searchbar" role="search">
+      <input id="search" type="search" placeholder="Search keywords (e.g., Python, library, leadership) …" aria-label="Filter content" />
+      <span id="searchCount" class="badge" aria-live="polite">0 matches</span>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <section id="resume" class="grid" role="tabpanel" aria-labelledby="Resume">
+    <div class="card">
+      <h2>Experience
+        <span class="section-actions">
+          <button class="btn ghost sm" data-section="exp" data-action="toggle">Toggle</button>
+        </span>
+      </h2>
+
+      <details class="exp" open>
+        <summary>HT Library Associate — Huston-Tillotson University <span class="meta">Austin, TX · 2025–Present</span></summary>
+        <div class="content">
+          <div class="item">
+            <ul>
+              <li>Assist students and faculty with research and library resources.</li>
+              <li>Maintain organized collections; support technology and study spaces.</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+
+      <details class="exp">
+        <summary>Associate — In-N-Out Burger <span class="meta">Austin, TX · 2025–Present</span></summary>
+        <div class="content">
+          <div class="item">
+            <ul>
+              <li>Deliver fast, accurate service in a high-volume setting.</li>
+              <li>Collaborate with team to maintain quality and efficiency.</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+
+      <details class="exp">
+        <summary>Teaching Assistant — Majtama Fani Tehran <span class="meta">Tehran, Iran · Sept 2023–July 2024</span></summary>
+        <div class="content">
+          <div class="item">
+            <ul>
+              <li>Supported lead instructor in Python coding class (~20 students).</li>
+              <li>Facilitated a positive, growth-oriented learning environment.</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+
+      <details class="exp">
+        <summary>Sales Representative — Sepehr (Local Clothing Store) <span class="meta">Tehran, Iran · Jun–Aug 2021</span></summary>
+        <div class="content">
+          <div class="item">
+            <ul>
+              <li>Increased sales conversion with personalized recommendations to 50+ daily shoppers.</li>
+              <li>Supported inventory management (~100 SKUs) and product availability.</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+
+      <details class="exp">
+        <summary>Home, Pet & Personal Care Assistant <span class="meta">Austin, TX · 2024–2025</span></summary>
+        <div class="content">
+          <div class="item">
+            <ul>
+              <li>Supported 20+ households with care, logistics, and event planning.</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <aside>
+      <div class="card">
+        <h2>Core Competencies</h2>
+        <div class="tags">
+          <span class="tag">Communication</span>
+          <span class="tag">Cultural Awareness</span>
+          <span class="tag">Adaptability</span>
+          <span class="tag">Task Management</span>
+          <span class="tag">Problem Solving</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h2>Technical Skills</h2>
+        <div class="item">
+          <div class="meta">Frontend</div>
+          <div class="tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span></div>
+          <div class="bar" aria-label="Frontend proficiency"><span style="width:70%"></span></div>
+        </div>
+        <div class="item">
+          <div class="meta">Backend</div>
+          <div class="tags"><span class="tag">Python (Advanced)</span></div>
+          <div class="bar" aria-label="Backend proficiency"><span style="width:85%"></span></div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="card">
+      <h2>Volunteer Experience</h2>
+
+      <details open>
+        <summary>Translator & Refugee Support — Casa Marianella <span class="meta">Austin, TX · Jan 2025–Present</span></summary>
+        <div class="content">
+          <div class="item">
+            <ul>
+              <li>Provided translation and document assistance for Persian-speaking community.</li>
+              <li>Delivered support and provision distribution; connected individuals to resources.</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Volunteer — Family Life Church <span class="meta">Austin, TX · 2024</span></summary>
+        <div class="content">
+          <div class="item">
+            <ul>
+              <li>Organized and managed supplies for community food programs.</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <aside>
+      <div class="card">
+        <h2>Languages</h2>
+        <div class="item"><strong>English</strong> — Fluent</div>
+        <div class="item"><strong>Farsi / Persian</strong> — Native</div>
+        <div class="item"><strong>Azerbaijan Turkish</strong> — Native</div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h2>Leadership</h2>
+        <div class="item"><strong>Math Club Leadership</strong> — Event Coordinator (2022–2023)</div>
+        <div class="item"><strong>Soccer Coach</strong> — Tehran (2023–2024)</div>
+        <div class="item"><strong>NSDC Leadership</strong> — HT (2025–Present)</div>
+      </div>
+    </aside>
+
+    <div class="card">
+      <h2>Education & Academic Achievements</h2>
+      <div class="item">
+        <h3>Huston-Tillotson University — Mechanical Engineering</h3>
+        <div class="meta">Class of 2029</div>
+      </div>
+      <div class="item">
+        <h3>GED — High School Diploma Equivalent</h3>
+        <div class="meta">Austin, TX — Sept 2024</div>
+      </div>
+      <div class="item">
+        <h3>Borhan High School</h3>
+        <div class="meta">Tehran, Iran — Aug 2021–Sept 2024</div>
+      </div>
+      <details>
+        <summary>Summer Programs & Awards</summary>
+        <div class="content">
+          <ul>
+            <li>3D Printing Summer Program — Austin Community College (Completed)</li>
+            <li>Fashion Design Summer Program — Austin Community College (Completed)</li>
+            <li>Winner — Math Competitions (2020, 2022)</li>
+            <li>Highest GPA in School (2022)</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- Optional projects area for your e-portfolio -->
+  <section id="projects" class="grid" hidden role="tabpanel" aria-labelledby="Projects">
+    <div class="card">
+      <h2>Featured Projects</h2>
+      <details open>
+        <summary>3D Printing Lab Initiative</summary>
+        <div class="content">
+          <p>Proposed and began organizing a student-run 3D printing workspace to teach design basics, printer care, and entrepreneurship.</p>
+          <ul>
+            <li>Drafted club plan, benefits to campus, and maintenance workflow.</li>
+            <li>Coordinated with faculty and student leaders for space and operations.</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary>Python Teaching Materials</summary>
+        <div class="content">
+          <p>Assisted in creating introductory Python exercises for new learners, focusing on fundamentals and problem-solving.</p>
+        </div>
+      </details>
+    </div>
+    <aside>
+      <div class="card">
+        <h2>Contact / Links</h2>
+        <p>Add portfolio links here (GitHub, LinkedIn, etc.).</p>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<footer>
+  © <span id="year"></span> Kamdin Tamjid • Austin, TX • Interactive résumé (blue × green)
+</footer>
+
+<script>
+  // Utility: debounce
+  function debounce(fn, wait=150){
+    let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(null,args),wait); }
+  }
+
+  // Theme toggle
+  const toggleThemeBtn = document.getElementById('toggleTheme');
+  function setTheme(mode){
+    const root = document.documentElement;
+    if(mode==='dark'){ root.classList.add('dark'); localStorage.setItem('theme','dark'); toggleThemeBtn.setAttribute('aria-pressed','true'); }
+    else { root.classList.remove('dark'); localStorage.setItem('theme','light'); toggleThemeBtn.setAttribute('aria-pressed','false'); }
+  }
+  // initialize theme
+  setTheme(localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'));
+  toggleThemeBtn.addEventListener('click', ()=> setTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark'));
+
+  // Tabs
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(t=>{
+    t.addEventListener('click', ()=>{
+      tabs.forEach(x=>x.setAttribute('aria-selected','false'));
+      t.setAttribute('aria-selected','true');
+      const target = t.dataset.target;
+      document.querySelectorAll('main section').forEach(sec=>{
+        if(sec.id===target){ sec.hidden=false; }
+        else { sec.hidden=true; }
+      });
+    });
+  });
+
+  // Expand / Collapse all
+  const expandAllBtn = document.getElementById('expandAll');
+  const collapseAllBtn = document.getElementById('collapseAll');
+  expandAllBtn.addEventListener('click', ()=> document.querySelectorAll('details').forEach(d=>d.open=true));
+  collapseAllBtn.addEventListener('click', ()=> document.querySelectorAll('details').forEach(d=>d.open=false));
+
+  // Section toggles (per-card)
+  document.querySelectorAll('[data-action="toggle"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const sel = '.'+btn.dataset.section;
+      document.querySelectorAll(sel).forEach(d=>d.open=!d.open);
+    });
+  });
+
+  // Copy-to-clipboard for contact pills
+  document.querySelectorAll('.pill[data-copy]').forEach(el=>{
+    el.addEventListener('click', async ()=>{
+      const val = el.getAttribute('data-copy');
+      try{
+        await navigator.clipboard.writeText(val);
+        const prev = el.textContent;
+        el.textContent = 'Copied!';
+        setTimeout(()=> el.textContent = prev, 900);
+      }catch(e){ alert('Could not copy'); }
+    });
+  });
+
+  // Search / Filter
+  const input = document.getElementById('search');
+  const countEl = document.getElementById('searchCount');
+  const haystackEls = Array.from(document.querySelectorAll('main .card, details, .item, .tags, .tag, li, h3, summary, .meta, .subtitle, .pill, .badge'));
+
+  function highlight(el, term){
+    // remove existing marks
+    el.querySelectorAll('mark.__hit').forEach(m=>{
+      const parent = m.parentNode;
+      parent.replaceChild(document.createTextNode(m.textContent), m);
+      parent.normalize();
+    });
+    if(!term) return;
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+    const re = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
+    let node;
+    const nodes=[];
+    while(node=walk.nextNode()){
+      if(node.nodeValue.trim().length && re.test(node.nodeValue)){
+        nodes.push(node);
+      }
+    }
+    nodes.forEach(n=>{
+      const frag = document.createDocumentFragment();
+      let lastIdx = 0;
+      n.nodeValue.replace(re, (match, idx)=>{
+        frag.appendChild(document.createTextNode(n.nodeValue.slice(lastIdx, idx)));
+        const mark = document.createElement('mark');
+        mark.className='__hit';
+        mark.textContent = match;
+        mark.style.background='linear-gradient(90deg, var(--accent), var(--accent-2))';
+        mark.style.color='#05251f';
+        mark.style.padding='0 2px';
+        mark.style.borderRadius='4px';
+        frag.appendChild(mark);
+        lastIdx = idx + match.length;
+      });
+      frag.appendChild(document.createTextNode(n.nodeValue.slice(lastIdx)));
+      n.parentNode.replaceChild(frag, n);
+    });
+  }
+
+  function filter(term){
+    let matches = 0;
+    const q = term.trim().toLowerCase();
+    // Show everything if empty
+    document.querySelectorAll('details').forEach(d=>{ if(!q) d.open = d.open; });
+    // Scan and mark
+    document.querySelectorAll('main .card').forEach(card=>{
+      const text = card.innerText.toLowerCase();
+      const hit = q ? text.includes(q) : true;
+      card.style.display = hit ? '' : 'none';
+      if(hit && q) matches++;
+      // highlight
+      highlight(card, q);
+    });
+    countEl.textContent = q ? `${matches} match${matches===1?'':'es'}` : `0 matches`;
+  }
+  input.addEventListener('input', debounce(()=>filter(input.value), 120));
+
+  // Footer year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Accessibility: open the first details by default if none open (mobile)
+  (function ensureOneOpen(){
+    const anyOpen = Array.from(document.querySelectorAll('details')).some(d=>d.open);
+    if(!anyOpen){
+      const first = document.querySelector('details'); if(first) first.open = true;
+    }
+  })();
+</script>
+</body>
+</html>
